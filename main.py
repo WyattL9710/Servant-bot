@@ -4,11 +4,9 @@ import constants
 import random
 import requests
 import pytz
-from googletrans import Translator
 from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
 from discord.ext import commands
-from datetime import datetime
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
