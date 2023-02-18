@@ -17,6 +17,11 @@ bot = commands.Bot(command_prefix='/', intents=intents)
 async def on_ready():
   print('Logged in as {0.user}'.format(client))
 
+def send_webhook(content):
+    data = {"content": content}
+    headers = {"Content-Type": "application/json"}
+    response = requests.post('https://discord.com/api/webhooks/1076382263853465620/oBH7j-eQ17u1utoIuoW7wrg0NPkLwcbQwE2P17pPkMGXR-EiBLhK9mbBGx_CL6BRWQAm', json=data, headers=headers)
+    response.raise_for_status()
 
 @client.event
 async def on_message(message):
