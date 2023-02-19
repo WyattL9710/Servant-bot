@@ -184,9 +184,10 @@ async def upcoming_birthdays(ctx):
     
     # Sort the birthdays by date
     sorted_birthdays = sorted(birthdays.items(), key=lambda x: x[1])
-    
+    print(f'Sorted Birthdays: {sorted_birthdays}')
     # Find the next upcoming birthday
     for user_id, date in sorted_birthdays:
+        print(f'user: {user_id} date: {date}')
         date = datetime.strptime(date, '%m/%d/%Y')
         date = date.replace(year=now.year)
         user = ctx.guild.get_member(int(user_id))
@@ -198,7 +199,6 @@ async def upcoming_birthdays(ctx):
                 await ctx.send(f"Today is {user.name}'s birthday!")
             else:
                 await ctx.send(f"{user.name}'s birthday is coming up on {date.strftime('%B %d')}. Only {days_until_birthday} days left!")
-            return
     
     # If there are no upcoming birthdays, send a message saying so
     await ctx.send("There are no upcoming birthdays.")
