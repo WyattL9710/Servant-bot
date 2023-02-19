@@ -25,4 +25,14 @@ FACTS_MSG = ['The shortest war in history was between Britain and Zanzibar in 18
                  'The shortest distance between two points on the Earth’s surface is a straight line through the Earth.',
                  'The tallest mountain on Mars, Olympus Mons, is over 3 times higher than Mount Everest.',
                  'A lightning bolt is hotter than the surface of the sun.',
-                 'A snail can sleep for up to 3 years.',]
+                 'A snail can sleep for up to 3 years.']
+
+EIGHT_BALL = [
+  'It is certain.', 'I predict it is so.', 'Without a doubt.',
+  'Yes, definitely.', 'You may rely on it.', 'As I see it, yes.',
+  'Most likely.', 'Outlook good.', 'Yes.', 'Signs point to yes.',
+  'Reply hazy, try again.', 'Ask again later.', 'Better not tell you now.',
+  'Cannot predict now.', 'Concentrate and ask again.',
+  "Don't count on it.", 'Outlook not so good.', 'My sources say no.',
+  'Very doubtful.'
+]

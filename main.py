@@ -7,135 +7,127 @@ import pytz
 from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
 from discord.ext import commands
+import json
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 bot = commands.Bot(command_prefix='/', intents=intents)
-
+ 
 
 @client.event
 async def on_ready():
   print('Logged in as {0.user}'.format(client))
 
+def send_webhook(content):
+    data = {"content": content}
+    headers = {"Content-Type": "application/json"}
+    response = requests.post('https://discord.com/api/webhooks/1076382263853465620/oBH7j-eQ17u1utoIuoW7wrg0NPkLwcbQwE2P17pPkMGXR-EiBLhK9mbBGx_CL6BRWQAm', json=data, headers=headers)
+    response.raise_for_status()
 
 @client.event
 async def on_message(message):
   if message.author == client.user:
     return
 
-  if message.content.startswith('/hello'):
-    await message.channel.send('Hello! How can I help you today?')
-    return
+@bot.command()
+async def hello(ctx):
+  await ctx.send('Hello! How can I help you today?')
 
-  if message.content.startswith('/8ball'):
-    responses = [
-      'It is certain.', 'I predict it is so.', 'Without a doubt.',
-      'Yes, definitely.', 'You may rely on it.', 'As I see it, yes.',
-      'Most likely.', 'Outlook good.', 'Yes.', 'Signs point to yes.',
-      'Reply hazy, try again.', 'Ask again later.', 'Better not tell you now.',
-      'Cannot predict now.', 'Concentrate and ask again.',
-      "Don't count on it.", 'Outlook not so good.', 'My sources say no.',
-      'Very doubtful.'
-    ]
-    await message.channel.send(random.choice(responses))
-    return
+@bot.command(name='8ball')
+async def eightball(ctx):
+  await ctx.send(random.choice(constants.EIGHT_BALL))
 
-  if message.content.startswith('/motivationalquote'):
-    url = 'https://www.brainyquote.com/topics/motivational-quotes'
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    quotes = soup.find_all('a', class_='b-qt')
-    quote = random.choice(quotes).text
-    await message.channel.send(quote)
-    return
+@bot.command()
+async def motivationalquote(ctx):
+  url = 'https://www.brainyquote.com/topics/motivational-quotes'
+  response = requests.get(url)
+  soup = BeautifulSoup(response.text, 'html.parser')
+  quotes = soup.find_all('a', class_='b-qt')
+  quote = random.choice(quotes).text
+  await ctx.send(quote)
 
-  if message.content.startswith('/roastme'):
-    msg = random.choice(constants.ROAST_MSG)
-    await message.channel.send(msg)
-    return
+@bot.command()
+async def roastme(ctx):
+  msg = random.choice(constants.ROAST_MSG)
+  await ctx.send(msg)
 
-  if message.content.startswith('/roll'):
-    # Parse the number of dice sides from the command message
-    try:
-      num_sides = int(message.content.split(' ')[1])
-    except:
-      # Default to 6 sides if no valid number is provided
-      num_sides = 6
 
-    # Generate a random number between 1 and the number of sides
-    roll = random.randint(1, num_sides)
+@bot.command()
+async def roll(ctx, message):
+  try:
+    num_sides = int(message.content.split(' ')[1])
+  except:
+    # Default to 6 sides if no valid number is provided
+    num_sides = 6
 
-    # Send a message with the roll result
-    await message.channel.send(f"You rolled a {roll}!")
-    return
+  # Generate a random number between 1 and the number of sides
+  roll = random.randint(1, num_sides)
 
-  if message.content.startswith('/facts'):
-    msg = random.choice(constants.FACTS_MSG)
-    await message.channel.send(msg)
-    return
+  # Send a message with the roll result
+  await ctx.send(f"You rolled a {roll}!")
 
-  if message.content.startswith('/sortinghat'):
-    houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin']
-    house = random.choice(houses)
-    user = message.author.mention
-    await message.channel.send(f'{user}, you have been sorted into {house}!')
-    return
 
-  if message.content.startswith('/weather'):
-    location = message.content[9:]  # Extract location from message
-    api_key = os.environ[
-      'OPEN_WEATHER_MAP_API_KEY']  # Replace with your OpenWeatherMap API key
+@bot.command()
+async def facts(ctx):
+  msg = random.choice(constants.FACTS_MSG)
+  await ctx.send(msg)
 
-    # Construct the API URL with the specified location and API key
-    url = f'http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=imperial'
+@bot.command()
+async def sortinghat(ctx):
+  houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin']
+  house = random.choice(houses)
+  user = ctx.author.mention
+  await ctx.send(f'{user}, you have been sorted into {house}!')
 
-    # Make the API request and parse the response
-    response = requests.get(url).json()
+@bot.command()
+async def weather(ctx, message):
+  location = message.content[9:]  # Extract location from message
+  api_key = os.environ[
+    'OPEN_WEATHER_MAP_API_KEY']  # Replace with your OpenWeatherMap API key
 
-    if 'main' in response:
-      # Extract the temperature and weather description from the response
-      print(f'Response: {response}')
-      temperature = response['main']['temp']
-      feels_like = response['main']['feels_like']
-      temp_min = response['main']['temp_min']
-      temp_max = response['main']['temp_max']
-      humidity = response['main']['humidity']
-      wind_speed = response['wind']['speed']
-      description = response['weather'][0]['description']
+  # Construct the API URL with the specified location and API key
+  url = f'http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=imperial'
 
-      # Format and send the weather information as a message
-      message_text = f'The current temperature in {location} is {temperature:.1f}°F with {description}s. However, it currently feels like {feels_like}°F. The high today will be {temp_max}°F, and the low will be {temp_min}°F. The current humidity is {humidity}%. The wind speed right now is {wind_speed} mph.'
-    else:
-      # Handle the case where the API response is empty or does not have the expected keys
-      message_text = 'Sorry, I could not find the weather for that location.'
+  # Make the API request and parse the response
+  response = requests.get(url).json()
 
-    # Send the message to the Discord channel
-    await message.channel.send(message_text)
-    return
+  if 'main' in response:
+    # Extract the temperature and weather description from the response
+    print(f'Response: {response}')
+    temperature = response['main']['temp']
+    feels_like = response['main']['feels_like']
+    temp_min = response['main']['temp_min']
+    temp_max = response['main']['temp_max']
+    humidity = response['main']['humidity']
+    wind_speed = response['wind']['speed']
+    description = response['weather'][0]['description']
 
-  if message.content == "/secret":
-        emoji = "🍪" # The cookie emoji
-        response = "Wow! You found the secret command! Here's a " + emoji
-        await message.channel.send(response)
-        return
-    
-  if message.content.startswith('/'):
-    await message.channel.send("Sorry, I dont understand. Try again.")
+    # Format and send the weather information as a message
+    message_text = f'The current temperature in {location} is {temperature:.1f}°F with {description}s. However, it currently feels like {feels_like}°F. The high today will be {temp_max}°F, and the low will be {temp_min}°F. The current humidity is {humidity}%. The wind speed right now is {wind_speed} mph.'
+  else:
+    # Handle the case where the API response is empty or does not have the expected keys
+    message_text = 'Sorry, I could not find the weather for that location.'
+
+  # Send the message to the Discord channel
+  await ctx.send(message_text)
+
+@bot.command()
+async def secret(ctx):
+  emoji = "🍪" # The cookie emoji
+  response = "Wow! You found the secret command! Here's a " + emoji
+  await ctx.send(response)
 
 
 
-
-
-
-# A dictionary to store users' birthdays
-birthdays = {}
+with open("birthday_list.json", "r") as f:
+    birthdays = json.load(f)
 
 # Command to set a user's birthday
 @bot.command()
 async def set_birthday(ctx, date_string, username=None):
     # Parse the date string
     date = datetime.strptime(date_string, '%m/%d/%Y')
-    
+
     # If username is None, use the username of the message author
     if username is None:
         user = ctx.author
@@ -144,13 +136,18 @@ async def set_birthday(ctx, date_string, username=None):
         if user is None:
             await ctx.send(f"Could not find user with username {username}.")
             return
-    
+
     # Store the user's birthday
-    birthdays[user.id] = date
+    birthdays[str(user.id)] = date.strftime('%m/%d/%Y')
+    
+    # Save the updated birthday list to the file
+    with open("birthday_list.json", "w") as f:
+        json.dump(birthdays, f)
     
     # Send a confirmation message
     await ctx.send(f"{user.name}'s birthday has been set to {date_string}.")
 
+  
 # Command to get a user's age
 @bot.command()
 async def age(ctx, username=None):
@@ -162,31 +159,42 @@ async def age(ctx, username=None):
         if user is None:
             await ctx.send(f"Could not find user with username {username}.")
             return
-    
+
+    user_id = str(user.id)
+          
     # Check if the user has set their birthday
-    if user.id not in birthdays:
+    if user_id not in birthdays.keys():
         await ctx.send("You haven't set your birthday yet!")
         return
+
+    birthday = datetime.strptime(birthdays[user_id], '%m/%d/%Y')
     
     # Calculate the user's age
     now = datetime.now()
-    age = now.year - birthdays[user.id].year - ((now.month, now.day) < (birthdays[user.id].month, birthdays[user.id].day))
+    age = now.year - birthday.year - ((now.month, now.day) < (birthday.month, birthday.day))
     
     # Send the user's age
     await ctx.send(f"{user.name} is {age} years old.")
     
 # Command to get upcoming birthdays
 @bot.command()
-async def upcoming(ctx):
+async def upcoming_birthdays(ctx):
     # Get the current date
     now = datetime.now()
     
     # Sort the birthdays by date
     sorted_birthdays = sorted(birthdays.items(), key=lambda x: x[1])
-    
+
+    if len(birthdays) == 0:
+      await ctx.send("There are no upcoming birthdays.")
+      return
+  
     # Find the next upcoming birthday
     for user_id, date in sorted_birthdays:
-        user = ctx.guild.get_member(user_id)
+        print(f'user: {user_id} date: {date}')
+        date = datetime.strptime(date, '%m/%d/%Y')
+        date = date.replace(year=now.year)
+        user = ctx.guild.get_member(int(user_id))
         if user is None:
             continue
         if date.month >= now.month and date.day >= now.day:
@@ -195,16 +203,84 @@ async def upcoming(ctx):
                 await ctx.send(f"Today is {user.name}'s birthday!")
             else:
                 await ctx.send(f"{user.name}'s birthday is coming up on {date.strftime('%B %d')}. Only {days_until_birthday} days left!")
-            return
-    
-    # If there are no upcoming birthdays, send a message saying so
-    await ctx.send("There are no upcoming birthdays.")
 
 @bot.command()
 async def list_users(ctx):
     users = [member.name for member in ctx.guild.members]
     await ctx.send("Usernames: " + ", ".join(users))
 
+@bot.command(name='rps')
+async def rock_paper_scissors(ctx):
+  choices = ['rock', 'paper', 'scissors']
+  bot_choice = random.choice(choices)
+  await ctx.send(f"I choose {bot_choice}!")
+
+
+@bot.command(name='timesince')
+async def time_since(ctx, date: str):
+    try:
+        target_date = datetime.strptime(date, '%m/%d/%Y')
+        today = datetime.now()
+
+        # calculate the difference in years
+        years = today.year - target_date.year
+        if (today.month, today.day) < (target_date.month, target_date.day):
+            years -= 1
+
+        # calculate the difference in months and remaining days
+        total_months = (today.year - target_date.year) * 12 + today.month - target_date.month
+        months = total_months % 12
+
+        if today.day < target_date.day:
+            days_in_last_month = (today.replace(day=1) - timedelta(days=1)).day
+            days = days_in_last_month - target_date.day + today.day
+            if months == 0:
+                years -= 1
+                months = 12
+            else:
+                months -= 1
+        else:
+            days = today.day - target_date.day
+
+        # construct the output string
+        time_str = f"{years} years, {months} months, and {days} days"
+        await ctx.send(f"It has been {time_str} since {target_date.strftime('%B %d, %Y')}")
+    except ValueError:
+        await ctx.send("Invalid date format. Please enter a valid date in MM/DD/YYYY format.")
+
+
+
+@bot.command(name='timeuntil')
+async def time_until(ctx, date: str):
+    try:
+        target_date = datetime.strptime(date, '%m/%d/%Y')
+        today = datetime.now()
+
+        # calculate the difference in years
+        years = target_date.year - today.year
+        if (today.month, today.day) > (target_date.month, target_date.day):
+            years -= 1
+
+        # calculate the difference in months and remaining days
+        total_months = (target_date.year - today.year) * 12 + target_date.month - today.month
+        months = total_months % 12
+
+        if today.day > target_date.day:
+            days_in_last_month = (today.replace(day=1) - timedelta(days=1)).day
+            days = days_in_last_month - today.day + target_date.day
+            if months == 0:
+                years -= 1
+                months = 12
+            else:
+                months -= 1
+        else:
+            days = target_date.day - today.day
+
+        # construct the output string
+        time_str = f"{years} years, {months} months, and {days} days"
+        await ctx.send(f"There are {time_str} until {target_date.strftime('%B %d, %Y')}")
+    except ValueError:
+        await ctx.send("Invalid date format. Please enter a valid date in MM/DD/YYYY format.")
 
 
 bot.run (os.environ['DISCORD_TOKEN'])
