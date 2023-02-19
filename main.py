@@ -11,7 +11,7 @@ from discord.ext import commands
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 bot = commands.Bot(command_prefix='/', intents=intents)
-
+ 
 
 @client.event
 async def on_ready():
@@ -32,7 +32,7 @@ async def on_message(message):
 async def hello(ctx):
   await ctx.send('Hello! How can I help you today?')
 
-@bot.command()
+@bot.command(name='8ball')
 async def eightball(ctx):
   await ctx.send(random.choice(constants.EIGHT_BALL))
 
@@ -196,6 +196,78 @@ async def list_users(ctx):
     users = [member.name for member in ctx.guild.members]
     await ctx.send("Usernames: " + ", ".join(users))
 
+@bot.command(name='rps')
+async def rock_paper_scissors(ctx):
+  choices = ['rock', 'paper', 'scissors']
+  bot_choice = random.choice(choices)
+  await ctx.send(f"I choose {bot_choice}!")
+
+
+@bot.command(name='timesince')
+async def time_since(ctx, date: str):
+    try:
+        target_date = datetime.strptime(date, '%m/%d/%Y')
+        today = datetime.now()
+
+        # calculate the difference in years
+        years = today.year - target_date.year
+        if (today.month, today.day) < (target_date.month, target_date.day):
+            years -= 1
+
+        # calculate the difference in months and remaining days
+        total_months = (today.year - target_date.year) * 12 + today.month - target_date.month
+        months = total_months % 12
+
+        if today.day < target_date.day:
+            days_in_last_month = (today.replace(day=1) - timedelta(days=1)).day
+            days = days_in_last_month - target_date.day + today.day
+            if months == 0:
+                years -= 1
+                months = 12
+            else:
+                months -= 1
+        else:
+            days = today.day - target_date.day
+
+        # construct the output string
+        time_str = f"{years} years, {months} months, and {days} days"
+        await ctx.send(f"It has been {time_str} since {target_date.strftime('%B %d, %Y')}")
+    except ValueError:
+        await ctx.send("Invalid date format. Please enter a valid date in MM/DD/YYYY format.")
+
+
+
+@bot.command(name='timeuntil')
+async def time_until(ctx, date: str):
+    try:
+        target_date = datetime.strptime(date, '%m/%d/%Y')
+        today = datetime.now()
+
+        # calculate the difference in years
+        years = target_date.year - today.year
+        if (today.month, today.day) > (target_date.month, target_date.day):
+            years -= 1
+
+        # calculate the difference in months and remaining days
+        total_months = (target_date.year - today.year) * 12 + target_date.month - today.month
+        months = total_months % 12
+
+        if today.day > target_date.day:
+            days_in_last_month = (today.replace(day=1) - timedelta(days=1)).day
+            days = days_in_last_month - today.day + target_date.day
+            if months == 0:
+                years -= 1
+                months = 12
+            else:
+                months -= 1
+        else:
+            days = target_date.day - today.day
+
+        # construct the output string
+        time_str = f"{years} years, {months} months, and {days} days"
+        await ctx.send(f"There are {time_str} until {target_date.strftime('%B %d, %Y')}")
+    except ValueError:
+        await ctx.send("Invalid date format. Please enter a valid date in MM/DD/YYYY format.")
 
 
 bot.run (os.environ['DISCORD_TOKEN'])
