@@ -7,6 +7,7 @@ import pytz
 from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
 from discord.ext import commands
+import json
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -118,15 +119,15 @@ async def secret(ctx):
 
 
 
-# A dictionary to store users' birthdays
-birthdays = {}
+with open("birthday_list.json", "r") as f:
+    birthdays = json.load(f)
 
 # Command to set a user's birthday
 @bot.command()
 async def set_birthday(ctx, date_string, username=None):
     # Parse the date string
     date = datetime.strptime(date_string, '%m/%d/%Y')
-    
+
     # If username is None, use the username of the message author
     if username is None:
         user = ctx.author
@@ -135,13 +136,18 @@ async def set_birthday(ctx, date_string, username=None):
         if user is None:
             await ctx.send(f"Could not find user with username {username}.")
             return
-    
+
     # Store the user's birthday
-    birthdays[user.id] = date
+    birthdays[str(user.id)] = date.strftime('%m/%d/%Y')
+    
+    # Save the updated birthday list to the file
+    with open("birthday_list.json", "w") as f:
+        json.dump(birthdays, f)
     
     # Send a confirmation message
     await ctx.send(f"{user.name}'s birthday has been set to {date_string}.")
 
+  
 # Command to get a user's age
 @bot.command()
 async def age(ctx, username=None):
@@ -168,7 +174,7 @@ async def age(ctx, username=None):
     
 # Command to get upcoming birthdays
 @bot.command()
-async def upcoming(ctx):
+async def upcoming_birthdays(ctx):
     # Get the current date
     now = datetime.now()
     
