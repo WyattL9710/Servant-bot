@@ -7,10 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10"]
+    runs-on: self-hosted
     steps:
-      - name: Python linters Black Check
-        uses: jose-lpa/python-black-check-action@1.0.0
+      - name: Checkout main branch
+        uses: actions/checkout@v2
