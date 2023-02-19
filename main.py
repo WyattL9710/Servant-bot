@@ -159,15 +159,19 @@ async def age(ctx, username=None):
         if user is None:
             await ctx.send(f"Could not find user with username {username}.")
             return
-    
+
+    user_id = str(user.id)
+          
     # Check if the user has set their birthday
-    if user.id not in birthdays:
+    if user_id not in birthdays.keys():
         await ctx.send("You haven't set your birthday yet!")
         return
+
+    birthday = datetime.strptime(birthdays[user_id], '%m/%d/%Y')
     
     # Calculate the user's age
     now = datetime.now()
-    age = now.year - birthdays[user.id].year - ((now.month, now.day) < (birthdays[user.id].month, birthdays[user.id].day))
+    age = now.year - birthday.year - ((now.month, now.day) < (birthday.month, birthday.day))
     
     # Send the user's age
     await ctx.send(f"{user.name} is {age} years old.")
@@ -183,7 +187,9 @@ async def upcoming_birthdays(ctx):
     
     # Find the next upcoming birthday
     for user_id, date in sorted_birthdays:
-        user = ctx.guild.get_member(user_id)
+        date = datetime.strptime(date, '%m/%d/%Y')
+        date = date.replace(year=now.year)
+        user = ctx.guild.get_member(int(user_id))
         if user is None:
             continue
         if date.month >= now.month and date.day >= now.day:
