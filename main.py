@@ -31,14 +31,17 @@ async def on_message(message):
 
 @bot.command()
 async def hello(ctx):
+  """Greets the user."""
   await ctx.send('Hello! How can I help you today?')
 
 @bot.command(name='8ball')
 async def eightball(ctx):
+  """Tells your fortune."""
   await ctx.send(random.choice(constants.EIGHT_BALL))
 
 @bot.command()
-async def motivationalquote(ctx):
+async def motivate(ctx):
+  """Gives a motivational quote."""
   url = 'https://www.brainyquote.com/topics/motivational-quotes'
   response = requests.get(url)
   soup = BeautifulSoup(response.text, 'html.parser')
@@ -48,12 +51,14 @@ async def motivationalquote(ctx):
 
 @bot.command()
 async def roastme(ctx):
+  """Roasts the user."""
   msg = random.choice(constants.ROAST_MSG)
   await ctx.send(msg)
 
 
 @bot.command()
 async def roll(ctx, message):
+  """Rolls a dice."""
   try:
     num_sides = int(message.content.split(' ')[1])
   except:
@@ -69,11 +74,13 @@ async def roll(ctx, message):
 
 @bot.command()
 async def facts(ctx):
+  """Gives a random fact."""
   msg = random.choice(constants.FACTS_MSG)
   await ctx.send(msg)
 
 @bot.command()
 async def sortinghat(ctx):
+  """Sorts the user into a Harry Potter House."""
   houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin']
   house = random.choice(houses)
   user = ctx.author.mention
@@ -81,6 +88,7 @@ async def sortinghat(ctx):
 
 @bot.command()
 async def weather(ctx, message):
+  """Gives weather details for a specific location."""
   location = message.content[9:]  # Extract location from message
   api_key = os.environ[
     'OPEN_WEATHER_MAP_API_KEY']  # Replace with your OpenWeatherMap API key
@@ -113,6 +121,7 @@ async def weather(ctx, message):
 
 @bot.command()
 async def secret(ctx):
+  """???"""
   emoji = "🍪" # The cookie emoji
   response = "Wow! You found the secret command! Here's a " + emoji
   await ctx.send(response)
@@ -125,92 +134,97 @@ with open("birthday_list.json", "r") as f:
 # Command to set a user's birthday
 @bot.command()
 async def set_birthday(ctx, date_string, username=None):
-    # Parse the date string
-    date = datetime.strptime(date_string, '%m/%d/%Y')
+  """Sets the birthday of a user."""
+  # Parse the date string
+  date = datetime.strptime(date_string, '%m/%d/%Y')
 
-    # If username is None, use the username of the message author
-    if username is None:
-        user = ctx.author
-    else:
-        user = discord.utils.find(lambda u: u.name == username, ctx.guild.members)
-        if user is None:
-            await ctx.send(f"Could not find user with username {username}.")
-            return
+  # If username is None, use the username of the message author
+  if username is None:
+      user = ctx.author
+  else:
+      user = discord.utils.find(lambda u: u.name == username, ctx.guild.members)
+      if user is None:
+          await ctx.send(f"Could not find user with username {username}.")
+          return
 
-    # Store the user's birthday
-    birthdays[str(user.id)] = date.strftime('%m/%d/%Y')
-    
-    # Save the updated birthday list to the file
-    with open("birthday_list.json", "w") as f:
-        json.dump(birthdays, f)
-    
-    # Send a confirmation message
-    await ctx.send(f"{user.name}'s birthday has been set to {date_string}.")
+  # Store the user's birthday
+  birthdays[str(user.id)] = date.strftime('%m/%d/%Y')
+  
+  # Save the updated birthday list to the file
+  with open("birthday_list.json", "w") as f:
+      json.dump(birthdays, f)
+  
+  # Send a confirmation message
+  await ctx.send(f"{user.name}'s birthday has been set to {date_string}.")
 
   
 # Command to get a user's age
 @bot.command()
 async def age(ctx, username=None):
-    # If username is None, use the username of the message author
-    if username is None:
-        user = ctx.author
-    else:
-        user = discord.utils.find(lambda u: u.name == username, ctx.guild.members)
-        if user is None:
-            await ctx.send(f"Could not find user with username {username}.")
-            return
+  """Provides the age of a user."""
+  # If username is None, use the username of the message author
+  if username is None:
+      user = ctx.author
+  else:
+      user = discord.utils.find(lambda u: u.name == username, ctx.guild.members)
+      if user is None:
+          await ctx.send(f"Could not find user with username {username}.")
+          return
 
-    user_id = str(user.id)
-          
-    # Check if the user has set their birthday
-    if user_id not in birthdays.keys():
-        await ctx.send("You haven't set your birthday yet!")
-        return
+  user_id = str(user.id)
+        
+  # Check if the user has set their birthday
+  if user_id not in birthdays.keys():
+      await ctx.send("You haven't set your birthday yet!")
+      return
 
-    birthday = datetime.strptime(birthdays[user_id], '%m/%d/%Y')
-    
-    # Calculate the user's age
-    now = datetime.now()
-    age = now.year - birthday.year - ((now.month, now.day) < (birthday.month, birthday.day))
-    
-    # Send the user's age
-    await ctx.send(f"{user.name} is {age} years old.")
-    
+  birthday = datetime.strptime(birthdays[user_id], '%m/%d/%Y')
+  
+  # Calculate the user's age
+  now = datetime.now()
+  age = now.year - birthday.year - ((now.month, now.day) < (birthday.month, birthday.day))
+  
+  # Send the user's age
+  await ctx.send(f"{user.name} is {age} years old.")
+  
 # Command to get upcoming birthdays
 @bot.command()
 async def upcoming_birthdays(ctx):
-    # Get the current date
-    now = datetime.now()
-    
-    # Sort the birthdays by date
-    sorted_birthdays = sorted(birthdays.items(), key=lambda x: x[1])
-
-    if len(birthdays) == 0:
-      await ctx.send("There are no upcoming birthdays.")
-      return
+  """Shows upcoming birthdays."""
+  # Get the current date
+  now = datetime.now()
   
-    # Find the next upcoming birthday
-    for user_id, date in sorted_birthdays:
-        print(f'user: {user_id} date: {date}')
-        date = datetime.strptime(date, '%m/%d/%Y')
-        date = date.replace(year=now.year)
-        user = ctx.guild.get_member(int(user_id))
-        if user is None:
-            continue
-        if date.month >= now.month and date.day >= now.day:
-            days_until_birthday = (date - now).days
-            if days_until_birthday == 0:
-                await ctx.send(f"Today is {user.name}'s birthday!")
-            else:
-                await ctx.send(f"{user.name}'s birthday is coming up on {date.strftime('%B %d')}. Only {days_until_birthday} days left!")
+  # Sort the birthdays by date
+  sorted_birthdays = sorted(birthdays.items(), key=lambda x: x[1])
+
+  if len(birthdays) == 0:
+    await ctx.send("There are no upcoming birthdays.")
+    return
+
+  # Find the next upcoming birthday
+  for user_id, date in sorted_birthdays:
+      print(f'user: {user_id} date: {date}')
+      date = datetime.strptime(date, '%m/%d/%Y')
+      date = date.replace(year=now.year)
+      user = ctx.guild.get_member(int(user_id))
+      if user is None:
+          continue
+      if date.month >= now.month and date.day >= now.day:
+          days_until_birthday = (date - now).days
+          if days_until_birthday == 0:
+              await ctx.send(f"Today is {user.name}'s birthday!")
+          else:
+              await ctx.send(f"{user.name}'s birthday is coming up on {date.strftime('%B %d')}. Only {days_until_birthday} days left!")
 
 @bot.command()
-async def list_users(ctx):
-    users = [member.name for member in ctx.guild.members]
-    await ctx.send("Usernames: " + ", ".join(users))
+async def users(ctx):
+  """Lists all users that are a member of the server."""
+  users = [member.name for member in ctx.guild.members]
+  await ctx.send("Usernames: " + ", ".join(users))
 
 @bot.command(name='rps')
 async def rock_paper_scissors(ctx):
+  """Servant bot will play rock, paper, and scissors with you."""
   choices = ['rock', 'paper', 'scissors']
   bot_choice = random.choice(choices)
   await ctx.send(f"I choose {bot_choice}!")
@@ -218,69 +232,72 @@ async def rock_paper_scissors(ctx):
 
 @bot.command(name='timesince')
 async def time_since(ctx, date: str):
-    try:
-        target_date = datetime.strptime(date, '%m/%d/%Y')
-        today = datetime.now()
+  """Shows the amount of time it has been since a specific date."""
+  try:
+      target_date = datetime.strptime(date, '%m/%d/%Y')
+      today = datetime.now()
 
-        # calculate the difference in years
-        years = today.year - target_date.year
-        if (today.month, today.day) < (target_date.month, target_date.day):
-            years -= 1
+      # calculate the difference in years
+      years = today.year - target_date.year
+      if (today.month, today.day) < (target_date.month, target_date.day):
+          years -= 1
 
-        # calculate the difference in months and remaining days
-        total_months = (today.year - target_date.year) * 12 + today.month - target_date.month
-        months = total_months % 12
+      # calculate the difference in months and remaining days
+      total_months = (today.year - target_date.year) * 12 + today.month - target_date.month
+      months = total_months % 12
 
-        if today.day < target_date.day:
-            days_in_last_month = (today.replace(day=1) - timedelta(days=1)).day
-            days = days_in_last_month - target_date.day + today.day
-            if months == 0:
-                years -= 1
-                months = 12
-            else:
-                months -= 1
-        else:
-            days = today.day - target_date.day
+      if today.day < target_date.day:
+          days_in_last_month = (today.replace(day=1) - timedelta(days=1)).day
+          days = days_in_last_month - target_date.day + today.day
+          if months == 0:
+              years -= 1
+              months = 12
+          else:
+              months -= 1
+      else:
+          days = today.day - target_date.day
 
-        # construct the output string
-        time_str = f"{years} years, {months} months, and {days} days"
-        await ctx.send(f"It has been {time_str} since {target_date.strftime('%B %d, %Y')}")
-    except ValueError:
-        await ctx.send("Invalid date format. Please enter a valid date in MM/DD/YYYY format.")
+      # construct the output string
+      time_str = f"{years} years, {months} months, and {days} days"
+      await ctx.send(f"It has been {time_str} since {target_date.strftime('%B %d, %Y')}")
+  except ValueError:
+      await ctx.send("Invalid date format. Please enter a valid date in MM/DD/YYYY format.")
 
 
 
 @bot.command(name='timeuntil')
 async def time_until(ctx, date: str):
-    try:
-        target_date = datetime.strptime(date, '%m/%d/%Y')
-        today = datetime.now()
+  """Shows how much time there is until a specfic date."""
+  try:
+      target_date = datetime.strptime(date, '%m/%d/%Y')
+      today = datetime.now()
 
-        # calculate the difference in years
-        years = target_date.year - today.year
-        if (today.month, today.day) > (target_date.month, target_date.day):
-            years -= 1
+      # calculate the difference in years
+      years = target_date.year - today.year
+      if (today.month, today.day) > (target_date.month, target_date.day):
+          years -= 1
 
-        # calculate the difference in months and remaining days
-        total_months = (target_date.year - today.year) * 12 + target_date.month - today.month
-        months = total_months % 12
+      # calculate the difference in months and remaining days
+      total_months = (target_date.year - today.year) * 12 + target_date.month - today.month
+      months = total_months % 12
 
-        if today.day > target_date.day:
-            days_in_last_month = (today.replace(day=1) - timedelta(days=1)).day
-            days = days_in_last_month - today.day + target_date.day
-            if months == 0:
-                years -= 1
-                months = 12
-            else:
-                months -= 1
-        else:
-            days = target_date.day - today.day
+      if today.day > target_date.day:
+          days_in_last_month = (today.replace(day=1) - timedelta(days=1)).day
+          days = days_in_last_month - today.day + target_date.day
+          if months == 0:
+              years -= 1
+              months = 12
+          else:
+              months -= 1
+      else:
+          days = target_date.day - today.day
 
-        # construct the output string
-        time_str = f"{years} years, {months} months, and {days} days"
-        await ctx.send(f"There are {time_str} until {target_date.strftime('%B %d, %Y')}")
-    except ValueError:
-        await ctx.send("Invalid date format. Please enter a valid date in MM/DD/YYYY format.")
+      # construct the output string
+      time_str = f"{years} years, {months} months, and {days} days"
+      await ctx.send(f"There are {time_str} until {target_date.strftime('%B %d, %Y')}")
+  except ValueError:
+      await ctx.send("Invalid date format. Please enter a valid date in MM/DD/YYYY format.")
+
 
 
 bot.run (os.environ['DISCORD_TOKEN'])
