@@ -28,107 +28,93 @@ async def on_message(message):
   if message.author == client.user:
     return
 
-  if message.content.startswith('/hello'):
-    await message.channel.send('Hello! How can I help you today?')
-    return
+@bot.command()
+async def hello(ctx):
+  await ctx.send('Hello! How can I help you today?')
 
-  if message.content.startswith('/8ball'):
-    responses = [
-      'It is certain.', 'I predict it is so.', 'Without a doubt.',
-      'Yes, definitely.', 'You may rely on it.', 'As I see it, yes.',
-      'Most likely.', 'Outlook good.', 'Yes.', 'Signs point to yes.',
-      'Reply hazy, try again.', 'Ask again later.', 'Better not tell you now.',
-      'Cannot predict now.', 'Concentrate and ask again.',
-      "Don't count on it.", 'Outlook not so good.', 'My sources say no.',
-      'Very doubtful.'
-    ]
-    await message.channel.send(random.choice(responses))
-    return
+@bot.command()
+async def eightball(ctx):
+  await ctx.send(random.choice(constants.EIGHT_BALL))
 
-  if message.content.startswith('/motivationalquote'):
-    url = 'https://www.brainyquote.com/topics/motivational-quotes'
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    quotes = soup.find_all('a', class_='b-qt')
-    quote = random.choice(quotes).text
-    await message.channel.send(quote)
-    return
+@bot.command()
+async def motivationalquote(ctx):
+  url = 'https://www.brainyquote.com/topics/motivational-quotes'
+  response = requests.get(url)
+  soup = BeautifulSoup(response.text, 'html.parser')
+  quotes = soup.find_all('a', class_='b-qt')
+  quote = random.choice(quotes).text
+  await ctx.send(quote)
 
-  if message.content.startswith('/roastme'):
-    msg = random.choice(constants.ROAST_MSG)
-    await message.channel.send(msg)
-    return
-
-  if message.content.startswith('/roll'):
-    # Parse the number of dice sides from the command message
-    try:
-      num_sides = int(message.content.split(' ')[1])
-    except:
-      # Default to 6 sides if no valid number is provided
-      num_sides = 6
-
-    # Generate a random number between 1 and the number of sides
-    roll = random.randint(1, num_sides)
-
-    # Send a message with the roll result
-    await message.channel.send(f"You rolled a {roll}!")
-    return
-
-  if message.content.startswith('/facts'):
-    msg = random.choice(constants.FACTS_MSG)
-    await message.channel.send(msg)
-    return
-
-  if message.content.startswith('/sortinghat'):
-    houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin']
-    house = random.choice(houses)
-    user = message.author.mention
-    await message.channel.send(f'{user}, you have been sorted into {house}!')
-    return
-
-  if message.content.startswith('/weather'):
-    location = message.content[9:]  # Extract location from message
-    api_key = os.environ[
-      'OPEN_WEATHER_MAP_API_KEY']  # Replace with your OpenWeatherMap API key
-
-    # Construct the API URL with the specified location and API key
-    url = f'http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=imperial'
-
-    # Make the API request and parse the response
-    response = requests.get(url).json()
-
-    if 'main' in response:
-      # Extract the temperature and weather description from the response
-      print(f'Response: {response}')
-      temperature = response['main']['temp']
-      feels_like = response['main']['feels_like']
-      temp_min = response['main']['temp_min']
-      temp_max = response['main']['temp_max']
-      humidity = response['main']['humidity']
-      wind_speed = response['wind']['speed']
-      description = response['weather'][0]['description']
-
-      # Format and send the weather information as a message
-      message_text = f'The current temperature in {location} is {temperature:.1f}°F with {description}s. However, it currently feels like {feels_like}°F. The high today will be {temp_max}°F, and the low will be {temp_min}°F. The current humidity is {humidity}%. The wind speed right now is {wind_speed} mph.'
-    else:
-      # Handle the case where the API response is empty or does not have the expected keys
-      message_text = 'Sorry, I could not find the weather for that location.'
-
-    # Send the message to the Discord channel
-    await message.channel.send(message_text)
-    return
-
-  if message.content == "/secret":
-        emoji = "🍪" # The cookie emoji
-        response = "Wow! You found the secret command! Here's a " + emoji
-        await message.channel.send(response)
-        return
-    
-  if message.content.startswith('/'):
-    await message.channel.send("Sorry, I dont understand. Try again.")
+@bot.command()
+async def roastme(ctx):
+  msg = random.choice(constants.ROAST_MSG)
+  await ctx.send(msg)
 
 
+@bot.command()
+async def roll(ctx, message):
+  try:
+    num_sides = int(message.content.split(' ')[1])
+  except:
+    # Default to 6 sides if no valid number is provided
+    num_sides = 6
 
+  # Generate a random number between 1 and the number of sides
+  roll = random.randint(1, num_sides)
+
+  # Send a message with the roll result
+  await ctx.send(f"You rolled a {roll}!")
+
+
+@bot.command()
+async def facts(ctx):
+  msg = random.choice(constants.FACTS_MSG)
+  await ctx.send(msg)
+
+@bot.command()
+async def sortinghat(ctx):
+  houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin']
+  house = random.choice(houses)
+  user = ctx.author.mention
+  await ctx.send(f'{user}, you have been sorted into {house}!')
+
+@bot.command()
+async def weather(ctx, message):
+  location = message.content[9:]  # Extract location from message
+  api_key = os.environ[
+    'OPEN_WEATHER_MAP_API_KEY']  # Replace with your OpenWeatherMap API key
+
+  # Construct the API URL with the specified location and API key
+  url = f'http://api.openweathermap.org/data/2.5/weather?q={location}&appid={api_key}&units=imperial'
+
+  # Make the API request and parse the response
+  response = requests.get(url).json()
+
+  if 'main' in response:
+    # Extract the temperature and weather description from the response
+    print(f'Response: {response}')
+    temperature = response['main']['temp']
+    feels_like = response['main']['feels_like']
+    temp_min = response['main']['temp_min']
+    temp_max = response['main']['temp_max']
+    humidity = response['main']['humidity']
+    wind_speed = response['wind']['speed']
+    description = response['weather'][0]['description']
+
+    # Format and send the weather information as a message
+    message_text = f'The current temperature in {location} is {temperature:.1f}°F with {description}s. However, it currently feels like {feels_like}°F. The high today will be {temp_max}°F, and the low will be {temp_min}°F. The current humidity is {humidity}%. The wind speed right now is {wind_speed} mph.'
+  else:
+    # Handle the case where the API response is empty or does not have the expected keys
+    message_text = 'Sorry, I could not find the weather for that location.'
+
+  # Send the message to the Discord channel
+  await ctx.send(message_text)
+
+@bot.command()
+async def secret(ctx):
+  emoji = "🍪" # The cookie emoji
+  response = "Wow! You found the secret command! Here's a " + emoji
+  await ctx.send(response)
 
 
 
