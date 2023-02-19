@@ -1,6 +1,6 @@
 name: Continuous Integration
 
 on:
-  merge:
+  push:
     branches:
       - main
