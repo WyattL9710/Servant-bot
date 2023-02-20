@@ -10,6 +10,8 @@ from discord.ext import commands
 import json
 import asyncio
 import time
+import googlesearch
+from googlesearch import search
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -322,7 +324,7 @@ async def nothin_but_a_heartache(ctx):
     """Bot answers: Tell me whyyyy"""
     await ctx.send("Tell me whyyyy")
 
-@bot.command(name='nothin_but_a_mistake')
+@bot.command(name='aint_nothin_but_a_mistake')
 async def nothin_but_a_mistake(ctx):
     """Bot answers: 'Cause I want it that wayyyyy"""
     await ctx.send("'Cause I want it that wayyyyy")
@@ -405,6 +407,12 @@ async def poll(ctx, question, *options):
 
     for reaction in reactions[:len(options)]:
         await react_message.add_reaction(reaction)
+
+@bot.command(name='google')
+async def google_search(ctx, *, query):
+    search_results = list(search(query, num=5, stop=5))
+    response = '\n'.join(search_results)
+    await ctx.send(response)
 
 
 bot.run (os.environ['DISCORD_TOKEN'])
