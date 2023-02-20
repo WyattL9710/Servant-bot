@@ -374,29 +374,16 @@ async def remindme(ctx, time, *, message):
     save_reminders()
 
     while time.time() < expiration_time:
-        remaining_time = int(expiration_time - time.time())
         await asyncio.sleep(10) # update every 10 seconds
-        await channel.send(f"{author.mention}, {remaining_time} seconds left until the reminder expires")
 
-    await channel.send(f"{author.mention}, you asked me to remind you to '{message}' {time} ago")
-    del reminders[str(author.id)]
-    save_reminders()
-
-@bot.command()
-async def timeleft(ctx):
-    """Check how much time is left until your next reminder."""
-    author = ctx.message.author
-    channel = ctx.message.channel
-
-    if str(author.id) in reminders:
-        reminder = reminders[str(author.id)]
-        expiration_time = reminder['expiration_time']
-        remaining_time = int(expiration_time - time.time())
-        await channel.send(f"{author.mention}, you have {remaining_time} seconds left until your reminder expires: '{reminder['message']}'")
-    else:
-        await channel.send(f"{author.mention}, you do not have any active reminders.")
-
-
+        if str(author.id) in reminders and reminders[str(author.id)]['expiration_time'] == expiration_time:
+            remaining_time = int(expiration_time - time.time())
+            await channel.send(f"{author.mention}, {remaining_time} seconds left until the reminder expires. Type '!cancelreminder' to cancel the reminder.")
+    
+    if str(author.id) in reminders and reminders[str(author.id)]['expiration_time'] == expiration_time:
+        await channel.send(f"{author.mention}, you asked me to remind you to '{message}' {time} ago")
+        del reminders[str(author.id)]
+        save_reminders()
 
 
 
