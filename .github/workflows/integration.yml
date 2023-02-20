@@ -17,5 +17,5 @@ jobs:
       - name: Setup Poetry
         uses: Gr1N/setup-poetry@v8
       - run: poetry install
-      - name: Restart server application
-        run: pm2 restart ServerBot
+      - name: Start server application
+        run: pm2 start poetry --name ServantBot -- run python main.py
