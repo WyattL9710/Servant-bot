@@ -12,9 +12,8 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v2
       - uses: actions/setup-python@v4
-      - name: Setup Poetry
-        uses: Gr1N/setup-poetry@v8
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
       - run: poetry install
-      - run: touch test_runner.txt
       - name: Start server application
         run: pm2 start poetry --name ServantBot -- run python main.py
