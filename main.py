@@ -327,45 +327,4 @@ async def nothin_but_a_mistake(ctx):
     await ctx.send("'Cause I want it that wayyyyy")
 
 
-@bot.command()
-async def numbergame(ctx):
-    def check(message):
-        return message.author == ctx.author and message.channel == ctx.channel
-
-    # get player1's guess
-    await ctx.send('Player 1, please enter your guess (between 1-100):')
-    player1_guess = await bot.wait_for('message', check=check)
-    while not player1_guess.content.isdigit() or int(player1_guess.content) < 1 or int(player1_guess.content) > 100:
-        await ctx.send('Invalid input. Please enter a number between 1-100:')
-        player1_guess = await bot.wait_for('message', check=check)
-    player1_guess = int(player1_guess.content)
-
-    # get player2's guess
-    await ctx.send('Player 2, please enter your guess (between 1-100):')
-    player2_guess = await bot.wait_for('message', check=check)
-    while not player2_guess.content.isdigit() or int(player2_guess.content) < 1 or int(player2_guess.content) > 100:
-        await ctx.send('Invalid input. Please enter a number between 1-100:')
-        player2_guess = await bot.wait_for('message', check=check)
-    player2_guess = int(player2_guess.content)
-
-    # get the winning number
-    winning_number = random.randint(1, 100)
-
-    # calculate the distances between the guesses and the winning number
-    player1_distance = abs(player1_guess - winning_number)
-    player2_distance = abs(player2_guess - winning_number)
-
-    # determine the winner
-    if player1_distance < player2_distance:
-        winner = 'Player 1'
-    elif player2_distance < player1_distance:
-        winner = 'Player 2'
-    else:
-        winner = 'It is a tie'
-
-    # send the result message
-    await ctx.send(f'The winning number is {winning_number}.\n'
-                   f'Player 1 guessed {player1_guess}. Player 2 guessed {player2_guess}.\n'
-                   f'{winner} is the winner!')
-
 bot.run (os.environ['DISCORD_TOKEN'])
