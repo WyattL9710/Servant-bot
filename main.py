@@ -87,9 +87,8 @@ async def sortinghat(ctx):
   await ctx.send(f'{user}, you have been sorted into {house}!')
 
 @bot.command()
-async def weather(ctx, message):
+async def weather(ctx, location):
   """Gives weather details for a specific location."""
-  location = message.content[9:]  # Extract location from message
   api_key = os.environ[
     'OPEN_WEATHER_MAP_API_KEY']  # Replace with your OpenWeatherMap API key
 
@@ -297,6 +296,34 @@ async def time_until(ctx, date: str):
       await ctx.send(f"There are {time_str} until {target_date.strftime('%B %d, %Y')}")
   except ValueError:
       await ctx.send("Invalid date format. Please enter a valid date in MM/DD/YYYY format.")
+
+
+@bot.command()
+async def joke(ctx):
+    """Tells a random joke."""
+    url = "https://official-joke-api.appspot.com/random_joke"
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = json.loads(response.text)
+        await ctx.send(f"{data['setup']} {data['punchline']}")
+    else:
+        await ctx.send("Oops, something went wrong. Please try again later.")
+
+
+@bot.command()
+async def I_want_it_that_way(ctx):
+    """Bot answers: Tell me whyyyy"""
+    await ctx.send("Tell me whyyyy")
+
+@bot.command()
+async def aint_nothin_but_a_heartache(ctx):
+    """Bot answers: Tell me whyyyy"""
+    await ctx.send("Tell me whyyyy")
+
+@bot.command()
+async def aint_nothin_but_a_mistake(ctx):
+    """Bot answers: 'Cause I want it that wayyyyy"""
+    await ctx.send("'Cause I want it that wayyyyy")
 
 
 
