@@ -326,53 +326,46 @@ async def nothin_but_a_mistake(ctx):
     """Bot answers: 'Cause I want it that wayyyyy"""
     await ctx.send("'Cause I want it that wayyyyy")
 
-@bot.command()
-async def random_number_game(ctx):
-    await ctx.send("Who wants to play the random number game? Type 'yes' to play.")
-    try:
-        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=15)
-    except asyncio.TimeoutError:
-        await ctx.send("Sorry, you didn't respond in time!")
-    else:
-        if message.content.lower() == 'yes':
-            await ctx.send("Great! Let's play!")
-            players = []
-            while len(players) < 2:
-                await ctx.send("Who wants to play the game? Type your username to join.")
-                try:
-                    message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=15)
-                except asyncio.TimeoutError:
-                    await ctx.send("Sorry, you didn't respond in time!")
-                    break
-                else:
-                    players.append(message.author)
-            if len(players) < 2:
-                await ctx.send("Not enough players. Game canceled.")
-            else:
-                number = random.randint(1, 10)
-                await ctx.send(f"I'm thinking of a number between 1 and 10. You have 3 chances to guess.")
-                for i in range(3):
-                    await ctx.send("Guess a number:")
-                    try:
-                        guess = await client.wait_for('message', check=lambda message: message.author in players and message.channel == ctx.channel, timeout=15)
-                    except asyncio.TimeoutError:
-                        await ctx.send(f"Sorry, time's up! The number was {number}.")
-                        break
-                    else:
-                        try:
-                            guess = int(guess.content)
-                        except ValueError:
-                            await ctx.send("That's not a valid number. Try again.")
-                        else:
-                            if guess == number:
-                                await ctx.send(f"Congratulations, {guess.author.mention}! You guessed the number.")
-                                break
-                            else:
-                                await ctx.send("Sorry, that's not the number. Try again.")
-                else:
-                    await ctx.send(f"Sorry, you're out of guesses! The number was {number}. Better luck next time.")
-        else:
-            await ctx.send("Maybe another time then. Have a great day!")
 
+@bot.command()
+async def numbergame(ctx):
+    def check(message):
+        return message.author == ctx.author and message.channel == ctx.channel
+
+    # get player1's guess
+    await ctx.send('Player 1, please enter your guess (between 1-100):')
+    player1_guess = await bot.wait_for('message', check=check)
+    while not player1_guess.content.isdigit() or int(player1_guess.content) < 1 or int(player1_guess.content) > 100:
+        await ctx.send('Invalid input. Please enter a number between 1-100:')
+        player1_guess = await bot.wait_for('message', check=check)
+    player1_guess = int(player1_guess.content)
+
+    # get player2's guess
+    await ctx.send('Player 2, please enter your guess (between 1-100):')
+    player2_guess = await bot.wait_for('message', check=check)
+    while not player2_guess.content.isdigit() or int(player2_guess.content) < 1 or int(player2_guess.content) > 100:
+        await ctx.send('Invalid input. Please enter a number between 1-100:')
+        player2_guess = await bot.wait_for('message', check=check)
+    player2_guess = int(player2_guess.content)
+
+    # get the winning number
+    winning_number = random.randint(1, 100)
+
+    # calculate the distances between the guesses and the winning number
+    player1_distance = abs(player1_guess - winning_number)
+    player2_distance = abs(player2_guess - winning_number)
+
+    # determine the winner
+    if player1_distance < player2_distance:
+        winner = 'Player 1'
+    elif player2_distance < player1_distance:
+        winner = 'Player 2'
+    else:
+        winner = 'It is a tie'
+
+    # send the result message
+    await ctx.send(f'The winning number is {winning_number}.\n'
+                   f'Player 1 guessed {player1_guess}. Player 2 guessed {player2_guess}.\n'
+                   f'{winner} is the winner!')
 
 bot.run (os.environ['DISCORD_TOKEN'])
