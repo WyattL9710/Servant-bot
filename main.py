@@ -386,6 +386,25 @@ async def remindme(ctx, time, *, message):
         save_reminders()
 
 
+@bot.command()
+async def poll(ctx, question, *options):
+    if len(options) <= 1:
+        await ctx.send('You need more than one option to create a poll!')
+        return
+    if len(options) > 10:
+        await ctx.send('You cannot create a poll with more than 10 options!')
+        return
+
+    reactions = [':one:', ':two:', ':three:', ':four:', ':five:', ':six:', ':seven:', ':eight:', ':nine:', ':keycap_ten:']
+    description = []
+    for i, option in enumerate(options):
+        description += '\n {} {}'.format(reactions[i], option)
+
+    embed = discord.Embed(title=question, description=''.join(description))
+    react_message = await ctx.send(embed=embed)
+
+    for reaction in reactions[:len(options)]:
+        await react_message.add_reaction(reaction)
 
 
 bot.run (os.environ['DISCORD_TOKEN'])
