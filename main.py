@@ -314,17 +314,17 @@ async def joke(ctx):
         await ctx.send("Oops, something went wrong. Please try again later.")
 
 
-@bot.command(name='i_want_it_that_way')
+@bot.command(name='i-want-it-that-way')
 async def want_it_that_way(ctx):
     """Bot answers: Tell me whyyyy"""
     await ctx.send("Tell me whyyyy")
 
-@bot.command(name='aint_nothin_but_a_heartache')
+@bot.command(name='aint-nothin-but-a-heartache')
 async def nothin_but_a_heartache(ctx):
     """Bot answers: Tell me whyyyy"""
     await ctx.send("Tell me whyyyy")
 
-@bot.command(name='aint_nothin_but_a_mistake')
+@bot.command(name='aint-nothin-but-a-mistake')
 async def nothin_but_a_mistake(ctx):
     """Bot answers: 'Cause I want it that wayyyyy"""
     await ctx.send("'Cause I want it that wayyyyy")
