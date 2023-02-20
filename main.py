@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, date, timedelta
 from discord.ext import commands
 import json
+import asyncio
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -325,6 +326,53 @@ async def aint_nothin_but_a_mistake(ctx):
     """Bot answers: 'Cause I want it that wayyyyy"""
     await ctx.send("'Cause I want it that wayyyyy")
 
+@bot.command()
+async def random_number_game(ctx):
+    await ctx.send("Who wants to play the random number game? Type 'yes' to play.")
+    try:
+        message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=15)
+    except asyncio.TimeoutError:
+        await ctx.send("Sorry, you didn't respond in time!")
+    else:
+        if message.content.lower() == 'yes':
+            await ctx.send("Great! Let's play!")
+            players = []
+            while len(players) < 2:
+                await ctx.send("Who wants to play the game? Type your username to join.")
+                try:
+                    message = await client.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=15)
+                except asyncio.TimeoutError:
+                    await ctx.send("Sorry, you didn't respond in time!")
+                    break
+                else:
+                    players.append(message.author)
+            if len(players) < 2:
+                await ctx.send("Not enough players. Game canceled.")
+            else:
+                number = random.randint(1, 10)
+                await ctx.send(f"I'm thinking of a number between 1 and 10. You have 3 chances to guess.")
+                for i in range(3):
+                    await ctx.send("Guess a number:")
+                    try:
+                        guess = await client.wait_for('message', check=lambda message: message.author in players and message.channel == ctx.channel, timeout=15)
+                    except asyncio.TimeoutError:
+                        await ctx.send(f"Sorry, time's up! The number was {number}.")
+                        break
+                    else:
+                        try:
+                            guess = int(guess.content)
+                        except ValueError:
+                            await ctx.send("That's not a valid number. Try again.")
+                        else:
+                            if guess == number:
+                                await ctx.send(f"Congratulations, {guess.author.mention}! You guessed the number.")
+                                break
+                            else:
+                                await ctx.send("Sorry, that's not the number. Try again.")
+                else:
+                    await ctx.send(f"Sorry, you're out of guesses! The number was {number}. Better luck next time.")
+        else:
+            await ctx.send("Maybe another time then. Have a great day!")
 
 
 bot.run (os.environ['DISCORD_TOKEN'])
