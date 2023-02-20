@@ -59,7 +59,7 @@ async def roastme(ctx):
 
 
 @bot.command()
-async def roll(ctx, message):
+async def roll(ctx):
   """Rolls a dice."""
   try:
     num_sides = int(message)
