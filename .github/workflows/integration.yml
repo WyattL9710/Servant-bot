@@ -12,6 +12,7 @@ jobs:
       - name: Checkout main branch
         uses: actions/checkout@v2
       - uses: actions/setup-python@v4
+      - run: git pull
       - run: pip3 install -r requirements.txt
       - name: Restart server application
         run: pm2 restart ServantBot
