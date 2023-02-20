@@ -9,6 +9,7 @@ from datetime import datetime, date, timedelta
 from discord.ext import commands
 import json
 import asyncio
+import time
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -61,7 +62,7 @@ async def roastme(ctx):
 async def roll(ctx, message):
   """Rolls a dice."""
   try:
-    num_sides = int(message.content.split(' ')[1])
+    num_sides = int(message)
   except:
     # Default to 6 sides if no valid number is provided
     num_sides = 6
@@ -326,9 +327,32 @@ async def nothin_but_a_mistake(ctx):
     """Bot answers: 'Cause I want it that wayyyyy"""
     await ctx.send("'Cause I want it that wayyyyy")
 
+
+REMINDERS_FILE = 'reminders.json'
+reminders = {}
+
+def save_reminders():
+    with open(REMINDERS_FILE, 'w') as f:
+        json.dump(reminders, f)
+
+def load_reminders():
+    global reminders
+    try:
+        with open(REMINDERS_FILE, 'r') as f:
+            reminders = json.load(f)
+    except FileNotFoundError:
+        pass
+
+@bot.event
+async def on_ready():
+    load_reminders()
+
 @bot.command()
 async def remindme(ctx, time, *, message):
-    """Set a reminder in the format of `!remindme <time> <message>`."""
+    """Set a reminder in the format of `!remindme <time> <message>`.
+
+    Example: !remindme 1h30m Do laundry
+    """
     author = ctx.message.author
     channel = ctx.message.channel
 
@@ -345,8 +369,36 @@ async def remindme(ctx, time, *, message):
             seconds += int(t[:-1]) * 60 * 60 * 24
 
     await channel.send(f"{author.mention}, I will remind you in {time} to '{message}'")
-    await asyncio.create_task(asyncio.sleep(seconds))
+    expiration_time = time.time() + seconds
+    reminders[str(author.id)] = {'message': message, 'expiration_time': expiration_time}
+    save_reminders()
+
+    while time.time() < expiration_time:
+        remaining_time = int(expiration_time - time.time())
+        await asyncio.sleep(10) # update every 10 seconds
+        await channel.send(f"{author.mention}, {remaining_time} seconds left until the reminder expires")
+
     await channel.send(f"{author.mention}, you asked me to remind you to '{message}' {time} ago")
+    del reminders[str(author.id)]
+    save_reminders()
+
+@bot.command()
+async def timeleft(ctx):
+    """Check how much time is left until your next reminder."""
+    author = ctx.message.author
+    channel = ctx.message.channel
+
+    if str(author.id) in reminders:
+        reminder = reminders[str(author.id)]
+        expiration_time = reminder['expiration_time']
+        remaining_time = int(expiration_time - time.time())
+        await channel.send(f"{author.mention}, you have {remaining_time} seconds left until your reminder expires: '{reminder['message']}'")
+    else:
+        await channel.send(f"{author.mention}, you do not have any active reminders.")
+
+
+
+
 
 
 bot.run (os.environ['DISCORD_TOKEN'])
