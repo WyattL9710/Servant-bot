@@ -11,3 +11,11 @@ jobs:
     steps:
       - name: Checkout main branch
         uses: actions/checkout@v2
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v8
+      - run: poetry install
+      - name: Start server application
+        run: pm2 start poetry --name ServantBot -- run python main.py
