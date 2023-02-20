@@ -326,5 +326,27 @@ async def nothin_but_a_mistake(ctx):
     """Bot answers: 'Cause I want it that wayyyyy"""
     await ctx.send("'Cause I want it that wayyyyy")
 
+@bot.command()
+async def remindme(ctx, time, *, message):
+    """Set a reminder in the format of `!remindme <time> <message>`."""
+    author = ctx.message.author
+    channel = ctx.message.channel
+
+    seconds = 0
+    time_list = time.split()
+    for t in time_list:
+        if t.endswith('s'):
+            seconds += int(t[:-1])
+        elif t.endswith('m'):
+            seconds += int(t[:-1]) * 60
+        elif t.endswith('h'):
+            seconds += int(t[:-1]) * 60 * 60
+        elif t.endswith('d'):
+            seconds += int(t[:-1]) * 60 * 60 * 24
+
+    await channel.send(f"{author.mention}, I will remind you in {time} to '{message}'")
+    await asyncio.create_task(asyncio.sleep(seconds))
+    await channel.send(f"{author.mention}, you asked me to remind you to '{message}' {time} ago")
+
 
 bot.run (os.environ['DISCORD_TOKEN'])
