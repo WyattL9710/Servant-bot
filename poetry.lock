@@ -265,6 +265,19 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "google-search"
+version = "1.1.1"
+description = "Library for scraping google search results"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+beautifulsoup4 = "*"
+lxml = "*"
+soupsieve = "*"
+
+[[package]]
 name = "googletrans"
 version = "3.0.0"
 description = "Free Google Translate API for Python. Translates totally free of charge."
@@ -2880,7 +2893,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.10.0,<3.11"
-content-hash = "fc6bd5f43d33d13c65560646798ba540aa159468224634e1ef2056ea6f534331"
+content-hash = "81f06466c57e555acceca1b1fe946ddeb4d9983b264e0c9d654368ba64fdc811"
 
 [metadata.files]
 aiohttp = []
@@ -2905,6 +2918,7 @@ discord = []
 flask = []
 frozenlist = []
 futures = []
+google-search = []
 googletrans = []
 goslate = []
 h11 = []

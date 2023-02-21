@@ -11,7 +11,7 @@ import json
 import asyncio
 import time
 import googlesearch
-from googlesearch import search
+
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
@@ -408,11 +408,14 @@ async def poll(ctx, question, *options):
     for reaction in reactions[:len(options)]:
         await react_message.add_reaction(reaction)
 
-@bot.command(name='google')
-async def google_search(ctx, *, query):
-    search_results = list(search(query, num=5, stop=5))
-    response = '\n'.join(search_results)
-    await ctx.send(response)
+
+
+
+@bot.command(name='coinflip')
+async def coinflip(ctx):
+  sides = ['Heads', 'Tails']
+  result = random.choice(sides)
+  await ctx.send(f"The coin landed on **{result}**!")
 
 
 bot.run (os.environ['DISCORD_TOKEN'])

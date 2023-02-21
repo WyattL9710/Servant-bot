@@ -18,6 +18,7 @@ goslate = "^1.5.4"
 googletrans = "^3.0.0"
 textblob = "^0.17.1"
 pyttsx3 = "^2.90"
+google-search = "^1.1.1"
 
 [tool.poetry.dev-dependencies]
 debugpy = "^1.6.2"
